@@ -1,0 +1,49 @@
+classDiagram
+    direction TB
+
+    class App {
+        +List~Owner~ owners
+        +List~Pet~ pets
+        +List~CareTask~ tasks
+        +List~DailyPlan~ plans
+        +save_owner(owner)
+        +load_owner(owner_id) Owner
+        +save_pet(pet)
+        +save_task(task)
+        +load_tasks(pet_id) List~CareTask~
+        +save_plan(plan)
+        +load_plan(date, pet_id) DailyPlan
+    }
+
+    class Owner {
+        +owner_id
+        +name
+        +contact_info
+    }
+
+    class Pet {
+        +pet_id
+        +owner_id
+        +name
+        +species
+        +breed
+        +age
+    }
+
+    class CareTask {
+        +task_id
+        +pet_id
+        +description
+        +frequency
+    }
+
+    class DailyPlan {
+        +date
+        +pet_id
+        +task_ids
+        +completion_status
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" CareTask : has
+    DailyPlan "1" --> "0..*" CareTask : schedules

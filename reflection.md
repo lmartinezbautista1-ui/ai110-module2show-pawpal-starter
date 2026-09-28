@@ -7,6 +7,7 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+My UML design will be made to help a user add in their pet, schedule for their routines (like feeding time, walking, or bathing), and check their routine list.
 **b. Design changes**
 
 - Did your design change during implementation?
