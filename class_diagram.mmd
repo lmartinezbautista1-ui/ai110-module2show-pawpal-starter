@@ -9,6 +9,7 @@ classDiagram
         +save_owner(owner)
         +load_owner(owner_id) Owner
         +save_pet(pet)
+        +load_pet(pet_id) Pet
         +save_task(task)
         +load_tasks(pet_id) List~CareTask~
         +save_plan(plan)
@@ -19,6 +20,8 @@ classDiagram
         +owner_id
         +name
         +contact_info
+        +List~Pet~ pets
+        +add_pet(pet)
     }
 
     class Pet {
@@ -28,6 +31,9 @@ classDiagram
         +species
         +breed
         +age
+        +Owner owner
+        +List~CareTask~ tasks
+        +add_task(task)
     }
 
     class CareTask {
@@ -35,15 +41,21 @@ classDiagram
         +pet_id
         +description
         +frequency
+        +duration_minutes
+        +priority
+        +preferred_time
     }
 
     class DailyPlan {
         +date
         +pet_id
-        +task_ids
-        +completion_status
+        +List~CareTask~ tasks
+        +Dict~str, bool~ completion_status
+        +add_task(task)
+        +mark_complete(task_id, complete)
     }
 
     Owner "1" --> "0..*" Pet : owns
     Pet "1" --> "0..*" CareTask : has
+    Pet "1" --> "0..*" DailyPlan : has
     DailyPlan "1" --> "0..*" CareTask : schedules

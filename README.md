@@ -65,6 +65,15 @@ pytest --cov
 ```
 
 Sample test output:
+luis0330@MacBookAir ai110-module2show-pawpal-starter % /opt/homebrew/bin/python3
+ /Users/luis0330/ai110-module2show-pawpal-starter/main.py
+Today's Schedule - 2026-10-04
+Owner: Luis Martinez
+=============================================
+08:00 - Buddy: Morning feeding (10 minutes, high priority)
+09:00 - Luna: Give medication (5 minutes, high priority)
+15:30 - Buddy: Afternoon walk (30 minutes, medium priority)
+18:00 - Luna: Evening feeding (10 minutes, medium priority)
 
 ```
 # Paste your pytest output here

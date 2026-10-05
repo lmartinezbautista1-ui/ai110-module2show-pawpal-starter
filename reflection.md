@@ -7,11 +7,13 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
-My UML design will be made to help a user add in their pet, schedule for their routines (like feeding time, walking, or bathing), and check their routine list.
+My UML design will be made to help a user add owner name for identity, the pet hopefully to note which pet species and their name too, list a task what needed for the pet, and note their daily plan, time to do those tasks each.
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+A bit for what I needed to do was fix a few parts in my pawpal_system.py and class_diagram.mmd. I needed to fix the missing or weak relationships between owner and pet on pawpal_system.py, fix a weak link on CareTask, the list under Pet. For logic bottlenecks, I needed to fix some parts on the lists for owners, pets, tasks, and plans such adding an index strategy. For domain-model gaps needed to included missing core scheduling fields for what's included in the CareTask model. Also needed to add strong validation for task_ids and completion_status.
 
 ---
 
