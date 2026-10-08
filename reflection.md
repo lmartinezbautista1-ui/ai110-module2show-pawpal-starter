@@ -24,6 +24,8 @@ A bit for what I needed to do was fix a few parts in my pawpal_system.py and cla
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+My schedulers, which I named as DailyPlan, tracks whether each task is complete and calculates the plan’s completion progress. It can also detect time conflicts by comparing tasks’ preferred times and durations. Tasks are added to the plan only if they’re due that day, and the app displays them by preferred time. Priority is shown, but the schedule doesn’t use it to choose or fit tasks. I decided which constraints mattered most via prioritizing whether a task is due today, so only tasks scheduled for that day appear in the plan. I also considered preferred time and duration to order tasks and identify overlapping time slots. Priority is recorded and displayed, but doesn't currently determine which tasks make the schedule.
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.

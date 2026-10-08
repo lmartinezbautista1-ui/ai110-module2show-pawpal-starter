@@ -17,10 +17,32 @@ def main() -> None:
     pawpal.save_pet(buddy)
     pawpal.save_pet(luna)
 
-    # Create at least three tasks at different times for the pets.
+    # Create tasks deliberately out of time order so sorting has to do work.
     pawpal.save_task(
         CareTask(
             "task-001",
+            buddy.pet_id,
+            "Evening feeding",
+            "daily",
+            duration_minutes=10,
+            priority="medium",
+            preferred_time="18:00",
+        )
+    )
+    pawpal.save_task(
+        CareTask(
+            "task-002",
+            luna.pet_id,
+            "Afternoon walk",
+            "daily",
+            duration_minutes=30,
+            priority="medium",
+            preferred_time="15:30",
+        )
+    )
+    pawpal.save_task(
+        CareTask(
+            "task-003",
             buddy.pet_id,
             "Morning feeding",
             "daily",
@@ -31,7 +53,7 @@ def main() -> None:
     )
     pawpal.save_task(
         CareTask(
-            "task-002",
+            "task-004",
             luna.pet_id,
             "Give medication",
             "daily",
@@ -40,48 +62,99 @@ def main() -> None:
             preferred_time="09:00",
         )
     )
+    # Two extra tasks: one unscheduled (no preferred_time) and one that makes
+    # the 08:00 slot collide, to exercise the tie-break and end-of-day sorting.
     pawpal.save_task(
         CareTask(
-            "task-003",
+            "task-005",
             buddy.pet_id,
-            "Afternoon walk",
+            "Brush fur",
             "daily",
-            duration_minutes=30,
-            priority="medium",
-            preferred_time="15:30",
+            duration_minutes=15,
+            priority="low",
+            preferred_time="08:00",
         )
     )
     pawpal.save_task(
         CareTask(
-            "task-004",
+            "task-006",
             luna.pet_id,
-            "Evening feeding",
+            "Trim nails",
+            "weekly",
+            duration_minutes=20,
+            priority="low",
+        )
+    )
+
+    # Two tasks deliberately placed at the same time (12:00) so the plan
+    # detects a scheduling conflict and a warning is printed below.
+    pawpal.save_task(
+        CareTask(
+            "task-007",
+            buddy.pet_id,
+            "Midday feeding",
             "daily",
-            duration_minutes=10,
+            duration_minutes=20,
             priority="medium",
-            preferred_time="18:00",
+            preferred_time="12:00",
+        )
+    )
+    pawpal.save_task(
+        CareTask(
+            "task-008",
+            luna.pet_id,
+            "Vet appointment",
+            "weekly",
+            duration_minutes=30,
+            priority="high",
+            preferred_time="12:00",
         )
     )
 
     today = date.today()
-    print(f"Today's Schedule - {today.isoformat()}")
-    print(f"Owner: {owner.name}")
-    print("=" * 45)
+    pets_by_id = {pet.pet_id: pet for pet in owner.pets}
 
-    all_tasks = []
-    for pet in owner.pets:
-        plan = pawpal.build_plan(today, pet.pet_id)
-        all_tasks.extend((task.preferred_time or "99:99", pet, task) for task in plan.tasks)
+    def show(title: str, tasks) -> None:
+        print(title)
+        print("=" * 45)
+        if not tasks:
+            print("(none)")
+        for task in tasks:
+            pet = pets_by_id[task.pet_id]
+            print(
+                f"{task.preferred_time or '--:--'} - {pet.name}: {task.description} "
+                f"({task.duration_minutes} minutes, {task.priority} priority)"
+            )
+        print()
 
-    # Display every pet's task in time order.
-    for task_time, pet, task in sorted(all_tasks, key=lambda item: item[0]):
-        print(
-            f"{task_time} - {pet.name}: {task.description} "
-            f"({task.duration_minutes} minutes, {task.priority} priority)"
-        )
+    # Build every pet's plan, then show the combined schedule sorted by time.
+    all_tasks = pawpal.build_owner_plan(today, owner.owner_id)
+    show(f"Today's Schedule - {today.isoformat()} | Owner: {owner.name}", all_tasks)
 
-    if not all_tasks:
-        print("No care tasks are scheduled for today.")
+    # Detect scheduling conflicts and print a warning for each overlapping pair.
+    conflicts = pawpal.find_conflicts(today, owner.owner_id)
+    if conflicts:
+        print(f"WARNING: {len(conflicts)} scheduling conflict(s) detected!")
+        for task_a, task_b in conflicts:
+            pet_a = pets_by_id[task_a.pet_id]
+            pet_b = pets_by_id[task_b.pet_id]
+            print(
+                f"  - {task_a.preferred_time}: '{task_a.description}' ({pet_a.name}) "
+                f"overlaps with '{task_b.description}' ({pet_b.name})"
+            )
+        print()
+
+    # Mark one task done so the completion filter has something to find.
+    plan = pawpal.load_plan(today.isoformat(), buddy.pet_id)
+    plan.mark_complete("task-003")
+
+    show("Filter: tasks for Luna", pawpal.filter_tasks(pet_name="lUnA"))
+    show("Filter: incomplete tasks (all pets)", pawpal.filter_tasks(completed=False))
+    show("Filter: completed tasks", pawpal.filter_tasks(completed=True))
+    show(
+        "Filter: Buddy + incomplete",
+        pawpal.filter_tasks(pet_name="Buddy", completed=False),
+    )
 
 
 if __name__ == "__main__":
