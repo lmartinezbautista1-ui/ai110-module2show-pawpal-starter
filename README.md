@@ -85,10 +85,10 @@ Owner: Luis Martinez
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Sorting | App.sort_by_time() | Orders tasks by preferred time, with an optional priority tiebreaker |
+| Filtering | App.filter_tasks() | Filters tasks by pet name, completion status, or both |
+| Conflict detection | DailyPlan.overlapping() | Finds tasks with overlapping time intervals |
+| Recurring tasks | CareTask.is_due_on() | Checks whether a task is due on a particular date. When the daily task is completed, App.complete_task() uses CareTask.create_next_occurrence() to create the next day’s task and avoids duplicates |
 
 ## 📸 Demo Walkthrough
 
