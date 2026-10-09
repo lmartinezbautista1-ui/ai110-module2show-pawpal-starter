@@ -116,23 +116,51 @@ else:
         st.session_state.pawpal.save_task(task)
         st.success(f"Saved task **{task.description}** for {pet.name}.")
 
-    # Show the tasks actually stored in the App.
+    # Show the tasks actually stored in the App, with filters.
     if st.session_state.pawpal.tasks:
         st.write("Current tasks:")
-        st.table(
-            [
-                {
-                    "task_id": t.task_id,
-                    "pet": (pet.name if (pet := st.session_state.pawpal.load_pet(t.pet_id)) else t.pet_id),
-                    "description": t.description,
-                    "frequency": t.frequency,
-                    "duration_minutes": t.duration_minutes,
-                    "priority": t.priority,
-                    "preferred_time": t.preferred_time,
-                }
-                for t in st.session_state.pawpal.tasks
-            ]
+
+        # --- Filter controls -> App.filter_tasks -----------------------------
+        fcol1, fcol2 = st.columns(2)
+        with fcol1:
+            filter_pet = st.selectbox(
+                "Filter by pet",
+                ["All pets"] + [p.name for p in pets],
+            )
+        with fcol2:
+            filter_done = st.selectbox(
+                "Filter by status",
+                ["All", "Completed", "Not completed"],
+            )
+
+        tasks_view = st.session_state.pawpal.filter_tasks(
+            pet_name=None if filter_pet == "All pets" else filter_pet,
+            completed=None if filter_done == "All" else (filter_done == "Completed"),
         )
+        tasks_view = st.session_state.pawpal.sort_by_time(tasks_view, priority_tiebreak=True)
+
+        if tasks_view:
+            priority_icon = {"high": "🔴", "medium": "🟡", "low": "🟢"}
+            st.table(
+                [
+                    {
+                        "time": t.preferred_time or "—",
+                        "task_id": t.task_id,
+                        "pet": (pet.name if (pet := st.session_state.pawpal.load_pet(t.pet_id)) else t.pet_id),
+                        "description": t.description,
+                        "frequency": t.frequency,
+                        "duration (min)": t.duration_minutes,
+                        "priority": f"{priority_icon.get(t.priority, '⚪')} {t.priority}",
+                    }
+                    for t in tasks_view
+                ]
+            )
+            st.success(
+                f"✅ Showing **{len(tasks_view)}** of **{len(st.session_state.pawpal.tasks)}** "
+                f"tasks — sorted by preferred time, high priority first on ties."
+            )
+        else:
+            st.warning("No tasks match the current filters. Try clearing them.")
     else:
         st.info("No tasks yet. Add one above.")
 
@@ -155,7 +183,15 @@ else:
         st.progress(plan.progress(), text=f"{int(plan.progress() * 100)}% complete")
 
         if plan.tasks:
-            ordered = sorted(plan.tasks, key=lambda t: t.preferred_time or "99:99")
+            ordered = st.session_state.pawpal.sort_by_time(plan.tasks, priority_tiebreak=True)
+            conflicts = plan.overlapping()
+            if conflicts:
+                st.warning(
+                    "⚠ Scheduling conflicts detected: "
+                    + "; ".join(
+                        f"'{a.description}' overlaps '{b.description}'" for a, b in conflicts
+                    )
+                )
             for task in ordered:
                 done = plan.completion_status.get(task.task_id, False)
                 cols = st.columns([1, 4, 3, 2, 1])
@@ -166,6 +202,14 @@ else:
                 if cols[4].button("✅" if not done else "↩️", key=f"done-{task.task_id}"):
                     plan.mark_complete(task.task_id, not done)
                     st.rerun()
-            st.caption(f"Task count: {len(plan.tasks)} — sorted by preferred time.")
+            st.caption(
+                f"Task count: {len(plan.tasks)} — sorted by preferred time"
+                + (", high priority first on ties." if len(ordered) else ".")
+            )
+            if plan.is_complete():
+                st.success(
+                    f"🎉 All done! **{pet.name}** has completed every task on the "
+                    f"{plan.date} plan — {len(plan.tasks)}/{len(plan.tasks)}."
+                )
         else:
             st.warning("No care tasks are due today for this pet.")

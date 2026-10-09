@@ -8,6 +8,7 @@
 - What classes did you include, and what responsibilities did you assign to each?
 
 My UML design will be made to help a user add owner name for identity, the pet hopefully to note which pet species and their name too, list a task what needed for the pet, and note their daily plan, time to do those tasks each.
+
 **b. Design changes**
 
 - Did your design change during implementation?
@@ -31,6 +32,8 @@ My schedulers, which I named as DailyPlan, tracks whether each task is complete 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+One clear tradeoff my scheduler, the DailyPlan, makes is that it detects conflicts but doesn't resolve them, overlapping tasks are flagged by comparing preferred times and durations, but all of them still appear in the plan rather than being dropped, deferred, or rearranged. Another is that priority is recorded and displayed but ignored when building the schedule, it doesn't influence which tasks get included or how overlaps are broken. This is reasonable for the PawPal scenario because the goal is to give a pet owner a trustworthy, transparent daily checklist, and it's better to show the owner everything due today (including a visible conflict they can resolve themselves) than to silently hide or reschedule a task like medication or feeding based on an automated guess. For a small, single-owner-per-plan domain with only a handful of tasks per day, the cost of a fully optimizing scheduler isn't worth the added complexity and the risk of surprising the user.
+
 ---
 
 ## 3. AI Collaboration
@@ -40,10 +43,14 @@ My schedulers, which I named as DailyPlan, tracks whether each task is complete 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+I used my AI tools to design brainstorming on what's best to include and debug errors I kept getting in order to fix the issue when doing each phase. The prompts most helpful were figuring out how to list each of the classes to function my app regarding owners, pets, the tasks, and daily plans on when and what time to do them.
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+I did not accept an AI suggestion as-is when it came to simplifying some algorithms. For I needed to make sure it functions good for when running the python test in order to get a benefiting output. I verified via going over what I have and inspected what my AI assistant suggested to see if it appears good and beneficial enough, but only after testing it in order to make sure it worked out when running the program.
 
 ---
 
@@ -54,10 +61,16 @@ My schedulers, which I named as DailyPlan, tracks whether each task is complete 
 - What behaviors did you test?
 - Why were these tests important?
 
+I tested whether marking a daily task complete rolls forward a correctly dated next occurrence (without duplicates, and only for daily tasks), whether the app's relationships hold (owners track their pets, pets track their tasks, and plans track each task's completion status), and whether the scheduler sorts tasks by preferred time across all of an owner's pets, including priority tie-breaking for tasks at the same time. I also verified due-date logic for weekly tasks (due only on their weekday) and conflict detection when two tasks share the same time slot. These tests were important because the rolling-occurrence and scheduling logic are the core behaviors of the app — if completion tracking duplicated tasks or sorting mixed up owners' pets' schedules, users would get an incorrect daily plan, so each test confirms a critical correctness guarantee rather than just surface behavior.
+
+
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
+
+I'm confident by 80% that my scheduler the DailyPlan class works correctly because my tests already cover the core guarantees (rolling daily occurrences without duplicates, sorting across all of an owner's pets, due-date filtering, and conflict detection), which is a solid foundation even though the answer is left unfinished. If had more time, the best edges I'd test next the most, would be boundary conditions around time overlaps — e.g., tasks that touch exactly at a boundary (one ends at 10:00, another starts at 10:00), tasks with no preferred time set, and durations that span midnight. I'd also test empty and multi-pet/multi-owner plans (a plan with zero due tasks, a pet with no tasks, and two owners whose pets share the same preferred time) to make sure the sorting and roll-forward logic stays correct under those degenerate inputs.
 
 ---
 
@@ -67,10 +80,16 @@ My schedulers, which I named as DailyPlan, tracks whether each task is complete 
 
 - What part of this project are you most satisfied with?
 
+I was most satisfied when I did the python testing bit to see if I needed to include anything else or remove a few things to ensure I get a good output when running the app.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+I'd try to improve on simplifying better on my classes and code sorting so be easier to keep locating on my most important classes I'm working on encase needed to add some new updates.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+One important thing I learned on working with AI is how quick it goes to thinking up best options to either add or change to in my code for each file when needed help in coming up with solutions for errors or fixing my output when testing the project.
